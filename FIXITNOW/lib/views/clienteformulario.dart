@@ -56,11 +56,11 @@ class _ClienteFormularioState extends State<ClienteFormulario> {
 
   void _enviarFormulario() async {
     if (_formKey.currentState?.validate() ?? false) {
-      Map<String, dynamic> usuarioData = {
+      /*Map<String, dynamic> usuarioData = {
         "usuario": usuarioController.text,
         "contrasena": passwordController.text,
         "tipo": tipoUsuario,
-      };
+      };*/
       // Crear un mapa con los datos del cliente
       Map<String, dynamic> clienteData = {
         "nombres": nombresController.text,
@@ -69,6 +69,8 @@ class _ClienteFormularioState extends State<ClienteFormulario> {
         "email": emailController.text,
         "telefono": telefonoController.text, // Mantener como String
         "edad": edadController.text, // Convertir a entero
+        "usuario": usuarioController.text,
+        "contrasena": passwordController.text,
       };
 
       //COMPARA Y VERIFICA LAS CONTRASEÑAS
@@ -82,7 +84,7 @@ class _ClienteFormularioState extends State<ClienteFormulario> {
       try {
         //instancia del controlador y llamado de ambos métodos
         ControladorAPI controlador = ControladorAPI();
-        await controlador.crearUsuario(usuarioData); //llama al método del controlador
+        //await controlador.crearUsuario(usuarioData); //llama al método del controlador
         await controlador.crearCliente(clienteData, _image?.path); // Llama al método del controlador
         Registroexito.mostrarDialogoExitoso(context, '¡El registro ha sido exitoso!'); // Muestra el diálogo de éxito
       } catch (e) {

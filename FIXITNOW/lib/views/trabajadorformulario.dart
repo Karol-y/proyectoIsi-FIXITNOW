@@ -78,11 +78,11 @@ class _WorkerFormState extends State<WorkerForm> {
   void _enviarFormulario() async {
     if (_formKey.currentState?.validate() ?? false) {
       //inserta primero los datos para el usuario
-      Map<String, dynamic> usuarioData = {
+      /*Map<String, dynamic> usuarioData = {
         "usuario": usuarioController.text,
         "contrasena": passwordController.text,
         "tipo": tipoUsuario,
-      };
+      };*/
       // Crear un mapa con los datos del trabajador
       Map<String, dynamic> trabajadorData = {
         "nombres": nombresController.text,
@@ -92,6 +92,8 @@ class _WorkerFormState extends State<WorkerForm> {
         "telefono": telefonoController.text, // Mantener como String
         "edad": edadController.text, // Convertir a entero
         "tipSer": servicioController.text,
+        "usuario": usuarioController.text,
+        "contrasena": passwordController.text,
       };
 
       //compara y verifica la contraseña
@@ -104,7 +106,7 @@ class _WorkerFormState extends State<WorkerForm> {
 
       try {
         // Llama al método del controlador y pasa la ruta de la imagen
-        await controlador.crearUsuario(usuarioData); //llama al método del controlador
+        //await controlador.crearUsuario(usuarioData); //llama al método del controlador
         await controlador.crearTrabajador(trabajadorData, _image?.path, _certificado?.path, _antecedente?.path,); // Llama al método del controlador 
         // Navega a la siguiente vista para subir documentos
         Navigator.push(
@@ -155,7 +157,7 @@ class _WorkerFormState extends State<WorkerForm> {
                     _buildTextField('Apellidos', apellidosController),
                     _buildTextField('N° Doc Identidad', docController),
                     _buildTextField('Email', emailController, keyboardType: TextInputType.emailAddress),
-                    _buildTextField('Teléfono', telefonoController, keyboardType: TextInputType.phone, hint: '+57'),
+                    _buildPhoneField(telefonoController),
                     _buildTextField('Edad', edadController, keyboardType: TextInputType.number),
                     _buildTextField('Tipo de Servicio', servicioController),
                     _buildTextField('Usuario', usuarioController),
@@ -170,6 +172,25 @@ class _WorkerFormState extends State<WorkerForm> {
           ),
         ),
       ),
+    );
+  }
+
+  // Método para crear el campo de teléfono con el prefijo "+57"
+  Widget _buildPhoneField(TextEditingController controller) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.phone,
+      decoration: const InputDecoration(
+        prefixText: '+57 ',
+        labelText: 'Teléfono',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor ingrese un número de teléfono válido';
+        }
+        return null;
+      },
     );
   }
 

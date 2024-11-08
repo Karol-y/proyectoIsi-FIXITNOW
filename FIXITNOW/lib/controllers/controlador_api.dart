@@ -8,7 +8,7 @@ class ControladorAPI {
   var logger = Logger();
 
   //método para crear un usuario
-  Future<void> crearUsuario(Map<String, dynamic> usuarioData) async {
+  /*Future<void> crearUsuario(Map<String, dynamic> usuarioData) async {
     var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/usuarios'));
 
     //verificar si hay datos
@@ -26,7 +26,7 @@ class ControladorAPI {
     } else {
       throw Exception('Error al crear Usuario: ${response.statusCode}');
     }
-  }
+  }*/
 
   // Método para crear un cliente
   Future<void> crearCliente(Map<String, dynamic> clienteData, String? imagePath) async {
@@ -39,6 +39,8 @@ class ControladorAPI {
     request.fields['email'] = clienteData['email'];
     request.fields['telefono'] = clienteData['telefono'];
     request.fields['edad'] = clienteData['edad'];
+    request.fields['usuario'] = clienteData['usuario'];
+    request.fields['contrasena'] = clienteData['contrasena'];
 
     // Agregar la imagen al request si está disponible
     if (imagePath != null && imagePath.isNotEmpty) {
@@ -68,6 +70,8 @@ class ControladorAPI {
     request.fields['telefono'] = trabajadorData['telefono'];
     request.fields['edad'] = trabajadorData['edad'];
     request.fields['tipSer'] = trabajadorData['tipSer'];
+    request.fields['usuario'] = trabajadorData['usuario'];
+    request.fields['contrasena'] = trabajadorData['contrasena'];
 
     // Agregar la imagen al request si está disponible
     if (imagePath != null && imagePath.isNotEmpty) {
