@@ -22,22 +22,38 @@ class _DocTrabajadorState extends State<DocTrabajador> {
       allowedExtensions: ['pdf', 'docx'], //asegúrate de que solo se permitan estos tipos
     );
      
-    if (result != null) {
+    if (result != null && result.files.isNotEmpty) {
+
+      print('Tipo de documento seleccionado: $type');
+
       PlatformFile file = result.files.first;
-      setState(() {
-        if (type == 'certificado') {
-          certificadoPath = file.path; // Guarda la ruta del certificado
-        } else if (type == 'antecedentes') {
-          antecedentesPath = file.path; // Guarda la ruta de antecedentes
-        }
-      });
-      print('Archivo seleccionado: ${file.name}');
+
+      print('Detalles del archivo seleccionado: ${file.toString()}');
+
+      if(file.path != null) {
+        setState(() {
+          if (type == 'certificado') {
+            certificadoPath = file.path; // Guarda la ruta del certificado
+          } else if (type == 'antecedente') {
+            antecedentesPath = file.path; // Guarda la ruta de antecedentes
+          }
+        });
+        print('Archivo seleccionado para $type: ${file.path}');  
+      } else {
+        print('El archivo seleccionado no tiene una ruta válida');
+      }  
     } else {
       print('Selección de archivo cancelada');
     }
+
+    Text(certificadoPath != null ? 'Certificado seleccionado' : 'Certificado no seleccionado');
+    Text(antecedentesPath != null ? 'Antecedentes seleccionados' : 'Antecedentes no seleccionados');
   }
 
   void _subirDocumentos() async {
+    print('certificadoPath: $certificadoPath');
+    print('antecedentesPath: $antecedentesPath');
+
     if (certificadoPath != null && antecedentesPath != null) {
       setState(() {
         isLoading = true; //comienza la carga
@@ -100,7 +116,7 @@ class _DocTrabajadorState extends State<DocTrabajador> {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () => pickDocument('antecedentes'), // Llama a pickDocument con tipo antecedentes
+              onPressed: () => pickDocument('antecedente'), // Llama a pickDocument con tipo antecedentes
               child: const Text('Seleccionar Antecedentes'),
             ),
             const SizedBox(height: 50),

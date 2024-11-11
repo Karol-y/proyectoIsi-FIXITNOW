@@ -4,7 +4,6 @@ import 'package:FIXITNOW/views/trabajadorinicio.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -30,8 +29,10 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   Future<void> loginUser(BuildContext context, String usuario, String contrasena) async {
-    final url = Uri.parse('http://192.168.0.24/apis/api.php');
-    final response = await http.post(url, body:{
+    const urlString = 'http://192.168.0.24/apis/api2.php';
+    final uri = Uri.parse(urlString);
+    
+    final response = await http.post(uri, body:{
       'usuario': usuario,
       'contrasena': contrasena,
     },);

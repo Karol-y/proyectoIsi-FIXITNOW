@@ -83,6 +83,12 @@ class _WorkerFormState extends State<WorkerForm> {
         "contrasena": passwordController.text,
         "tipo": tipoUsuario,
       };*/
+      //verifica que los documentos han sido seleccionados
+      if(_certificado == null || _antecedente == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Debe seleccionar el certificado y el antecedente')),
+        );
+      }
       // Crear un mapa con los datos del trabajador
       Map<String, dynamic> trabajadorData = {
         "nombres": nombresController.text,
@@ -105,6 +111,25 @@ class _WorkerFormState extends State<WorkerForm> {
       }
 
       try {
+        //navegar a la vista para seleccionar los documentos
+        final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const DocTrabajador()),);
+
+        //verifica si el resultado es valido, que los documentos hayan sido seleccionados
+        if(result != null) {
+          String certificadoPath = result['certificado'];
+          String antecedentesPath = result['antecedente'];
+
+          //llamar al metodo del controlador con los documentos y los demas documentos
+          await controlador.crearTrabajador(trabajadorData, _image?.path, certificadoPath, antecedentesPath);
+          
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trabajador registrado exitosamente')),);
+          const SnackBar(content: Text('Trabajador registrado exitosamente'));        
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al crear trabajador: $e')));
+      }
+
+      /*try {
         // Llama al método del controlador y pasa la ruta de la imagen
         //await controlador.crearUsuario(usuarioData); //llama al método del controlador
         await controlador.crearTrabajador(trabajadorData, _image?.path, _certificado?.path, _antecedente?.path,); // Llama al método del controlador 
@@ -114,9 +139,8 @@ class _WorkerFormState extends State<WorkerForm> {
           MaterialPageRoute(builder: (context) => const DocTrabajador()),
         );
       } catch (e) {
-        print(e); //imprimir el error para ver detalles
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al crear trabajador: $e')));
-      }
+      }*/
     }
   }
 

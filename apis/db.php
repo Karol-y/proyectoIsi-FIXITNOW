@@ -188,6 +188,20 @@ $pass = '123456'; // Tu contraseña de base de datos
                 echo json_encode(['message' => "Error: Hay variables vacías o incorrectas."]); 
             }
         }
+
+        // Función para verificar usuario y contraseña
+        function verificarUsuario($pdo, $usuario, $contrasena) {
+            $stmt = $pdo->prepare("SELECT contrasena, tipo FROM usuarios WHERE usuario = :usuario");
+            $stmt->bindValue(':usuario', $usuario);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && password_verify($contrasena, $user['contrasena'])) {
+                return ['success' => true, 'tipo' => $user['tipo']];
+            } else {
+                return ['success' => false];
+            }
+        }
     } catch(PDOException $e) {
         http_response_code(500);
         echo json_encode(['message' => "Error al insertar registro: " . $e->getMessage()]);

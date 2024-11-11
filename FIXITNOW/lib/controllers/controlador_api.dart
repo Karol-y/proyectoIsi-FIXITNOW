@@ -57,9 +57,65 @@ class ControladorAPI {
     }
   }
 
+  // Método para subir documentos
+  /*Future<void> subirDocumentos(String certificadoPath, String antecedentesPath) async {
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/uploadDocuments'));
+
+    // Agregar los archivos al request
+    if(certificadoPath.isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath('certificado', certificadoPath));
+    } else {
+      throw Exception('La ruta del certificado es inválida');
+    }
+    
+    if(certificadoPath.isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath('antecedentes', antecedentesPath));
+    } else {
+      throw Exception('La ruta del antecedente es inválida');
+    }
+    
+    // Enviar la solicitud
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      logger.i('Documentos subidos exitosamente');
+    } else {
+      throw Exception('Error al subir documentos: ${response.statusCode}');
+    }
+  }*/
+
+  Future<Map <String, String>> subirDocumentos(String certificadoPath, String antecedentesPath) async {
+   
+    if(certificadoPath.isEmpty || antecedentesPath.isEmpty) {
+      throw Exception('Las rutas de los documentos son inválidas');
+    }
+
+    final Map<String, String> documentosValidos = {};
+
+    if(certificadoPath.isNotEmpty) {
+      documentosValidos['certificado'] = certificadoPath;
+    } else {
+      throw Exception('La ruta del certificado es inválida');
+    }
+
+    if(antecedentesPath.isNotEmpty) {
+      documentosValidos['antecedente'] = antecedentesPath;
+    } else {
+      throw Exception('La ruta de antecedentes es inválida');
+    }
+
+    return documentosValidos;
+  }
+
   // Método para crear un trabajador
-  Future<void> crearTrabajador(Map<String, dynamic> trabajadorData, String? imagePath, String? certificadoPath,
-    String? antecedentesPath) async {
+  Future<void> crearTrabajador(Map<String, dynamic> trabajadorData, String? imagePath, String? certificadoPath, String? antecedentesPath) async {
+    
+    if(certificadoPath == null || antecedentesPath == null) {
+      throw Exception('Las rutas de los documentos no pueden ser nulas');
+    }
+
+    final Map<String, String> documentos = await subirDocumentos(certificadoPath, antecedentesPath);
+    
     var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/trabajadores'));
 
     // Agregar los campos del trabajador
@@ -78,26 +134,52 @@ class ControladorAPI {
       request.files.add(await http.MultipartFile.fromPath('foto', imagePath));
     }
 
+    if(documentos['certificado']?.isNotEmpty ?? false) {
+      request.files.add(await http.MultipartFile.fromPath('certificado', documentos['certificado'] ?? ''));
+    }
+    
+    if(documentos['antecedente']?.isNotEmpty ?? false) {
+      request.files.add(await http.MultipartFile.fromPath('antecedente', documentos['antecedente'] ?? ''));
+    }
+
     // Agregar el certificado al request si está disponible 
-    if (certificadoPath != null && certificadoPath.isNotEmpty) { 
+    /*if (certificadoPath != null && certificadoPath.isNotEmpty) { 
       request.files.add(await http.MultipartFile.fromPath('certificado', certificadoPath)); 
     } 
 
     // Agregar los antecedentes al request si está disponible 
     if (antecedentesPath != null && antecedentesPath.isNotEmpty) { 
       request.files.add(await http.MultipartFile.fromPath('antecedentes', antecedentesPath)); 
-    }
+    }*/
 
-    // Enviar la solicitud
+    // Enviar la solicitud para crear al trabajador
     var response = await request.send();
 
-    //manejo de respuestas
-    var responseBody = await http.Response.fromStream(response);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      logger.i('Trabajador creado exitosamente');
+    /*if (certificadoPath != null && antecedentesPath != null) {
+      // Llamar a la función que espera un String no nulo
+      subirDocumentos(certificadoPath, antecedentesPath);
     } else {
-      logger.e('Error al crear Trabajador: ${responseBody.body}');
-      throw Exception('Error al crear Trabajador: ${responseBody.body}');
+      // Manejar el caso en que certificadoPath es null
+      // Mostrar un mensaje de error al usuario
+      logger.e('Por favor, selecciona ambos documentos: Certificado y Antecedentes');
+    }*/
+
+    //si los documentos no son nulos, subirlos
+    if (response.statusCode == 200) {
+      var responseBody = await response.stream.bytesToString();
+      logger.i('Trabajador creado exitosamente: $responseBody');
+      // Después de crear el trabajador, subimos los documentos
+      /*if(certificadoPath != null && certificadoPath.isNotEmpty && antecedentesPath != null && antecedentesPath.isNotEmpty) {
+        //subir los documentos solo si ambor estan disponibles
+        await subirDocumentos(certificadoPath, antecedentesPath);
+      } else {
+        logger.e('Por favor, selecciona ambos documentos: Certificado y Antecedentes');
+      }*/
+
+    } else {
+      var responseBody = await response.stream.bytesToString();
+      logger.e('Error al crear Trabajador: ${response.statusCode}, Detalle: $responseBody');
+      throw Exception('Error al crear Trabajador: ${response.statusCode}');
     }
   }
 
@@ -133,22 +215,5 @@ class ControladorAPI {
     }
   }
 
-  // Método para subir documentos
-  Future<void> subirDocumentos(String certificadoPath, String antecedentesPath) async {
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/uploadDocuments'));
-
-    // Agregar los archivos al request
-    request.files.add(await http.MultipartFile.fromPath('certificado', certificadoPath));
-    request.files.add(await http.MultipartFile.fromPath('antecedentes', antecedentesPath));
-
-    // Enviar la solicitud
-    var response = await request.send();
-
-    if (response.statusCode == 200) {
-      logger.i('Documentos subidos exitosamente');
-    } else {
-      logger.e('Error al subir documentos: ${response.statusCode}');
-      throw Exception('Error al subir documentos: ${response.statusCode}');
-    }
-  }
+  
 }
