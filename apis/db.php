@@ -189,7 +189,7 @@ $pass = '123456'; // Tu contraseña de base de datos
             }
         }
 
-        // Función para verificar usuario y contraseña
+        /* Función para verificar usuario y contraseña
         function verificarUsuario($pdo, $usuario, $contrasena) {
             $stmt = $pdo->prepare("SELECT contrasena, tipo FROM usuarios WHERE usuario = :usuario");
             $stmt->bindValue(':usuario', $usuario);
@@ -201,7 +201,26 @@ $pass = '123456'; // Tu contraseña de base de datos
             } else {
                 return ['success' => false];
             }
+        }*/
+
+        //funcion para obtener los tipos de servicios disponibles
+        function obtenerServicios($pdo){
+            try {
+                // Consulta para obtener los tipos de servicio únicos
+                $query = "SELECT DISTINCT tipSer AS tipoServicio FROM trabajadores";
+                $stmt = $pdo->prepare($query);
+                $stmt->execute();
+        
+                // Obtener los resultados como un arreglo
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+                return $result;
+            } catch (PDOException $e) {
+                // Manejo de errores
+                return ['error' => 'Error al obtener los tipos de servicios: ' . $e->getMessage()];
+            }
         }
+        
     } catch(PDOException $e) {
         http_response_code(500);
         echo json_encode(['message' => "Error al insertar registro: " . $e->getMessage()]);

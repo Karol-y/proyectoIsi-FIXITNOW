@@ -8,7 +8,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 // Permitir encabezados específicos
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-    require 'db.php';
+    require 'db2.php';
 
     //funcion para autenticacion
     function loginUsuario() {
@@ -35,4 +35,5 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
     }
 
     loginUsuario();
+
 ?>

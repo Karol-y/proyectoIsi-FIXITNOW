@@ -22,18 +22,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
         $uri = isset($_SERVER['PATH_INFO']) ? explode('/', trim($_SERVER['PATH_INFO'], '/')) : [];
 
         if (!empty($uri)){
-            if($uri[0] === 'usuarios') {
-                switch ($method) {
-                    case 'GET':
-                        return getUsuarios();
-                    case 'POST':
-                        return createUsuario();
-                    case 'PUT':
-                        return updateUsuario($uri[1]);
-                    case 'DELETE':
-                        return deleteUsuario($uri[1]);
-                }
-            } elseif ($uri[0] === 'clientes') {
+            if ($uri[0] === 'clientes') {
                 switch ($method) {
                     case 'GET':
                         return getClientes();
@@ -75,78 +64,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
         echo json_encode(['message' => 'Not Found']);
     }
 
-
-    /* Funcion para manejar usuarios
-    function getUsuarios() {
-        global $pdo;
-        $stmt = $pdo->query("SELECT * FROM usuarios");
-        $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode($usuarios);
-    }*/
-
-    //funcion para crear usuarios
-   /* function createUsuario() {
-        global $pdo;
-        $usuario = $_POST['usuario'] ?? '';
-        $contrasena = $_POST['contrasena'] ?? '';
-        $tipo = $_POST['tipo'] ?? '';
-
-        if(empty($usuario) || empty($contrasena)){
-            http_response_code(400);
-            echo json_encode(['message' => 'Usuario o Contraseña faltante']);
-            return;
-        }
-
-        $stmt = $pdo->prepare("INSERT INTO usuarios (usuario, contrasena, tipo) VALUES (:usuario, :contrasena, :tipo)");
-        $stmt->bindValue(':usuario', $usuario);
-        $stmt->bindValue(':contrasena', password_hash($contrasena, PASSWORD_DEFAULT));
-        $stmt->bindValue(':tipo', $tipo);
-
-        error_log('Datos a insertar: ' . print_r($_POST, true));
-        
-        if($stmt->execute()) {
-            http_response_code(201);
-            echo json_encode(['message' => 'Usuario creado']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['message' => 'Error al crear usuario']);
-        }
-    }*/
-
-    /*funcion para autenticacion
-    function loginUsuario() {
-        global $pdo;
-        $usuario = $_POST['usuario'] ?? '';
-        $contrasena = $_POST['contrasena'] ?? '';
-
-        if(empty($usuario) || empty($contrasena)) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Usuario o Contraseña faltante']);
-            return;
-        }
-
-        try {
-            //consulta que tambien selecciona el tipo de usuario
-            $stmt =$pdo->prepare("SELECT contrasena, tipo FROM usuarios WHERE usuario = :usuario");
-            $stmt->bindValue(':usuario', $usuario);
-            $stmt->execute();
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if($user && password_verify($contrasena, $user['contrasena'])) {
-                http_response_code(200);
-                echo json_encode(['message' => 'Inicio de sesión exitoso', 'tipo' => $user['tipo']]);
-            } else {
-                $stmt->errorInfo();
-                http_response_code(401);
-                echo json_encode(['message' => 'Credenciales Incorrectas']);
-            }
-        } catch (PDOException $e) {
-            $stmt->errorInfo();
-            http_response_code(500);
-            echo json_encode(['message' => 'Usuario ya existe: ' . $e->getMessage()]);
-        }
-    }*/
-
     // Funciones para manejar trabajadores
     function getClientes() {
         global $pdo;
@@ -155,6 +72,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
         echo json_encode($clientes);
     }
 
+    //se envian los datos organizados y validados de los clientes a db.php
     function createCliente() {
         global $pdo;
 
@@ -217,7 +135,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                             }
                             
                             // Asigna los valores a los parámetros usando bindValue
-                            $urlFoto = "http://localhost/apis/uploads/" . basename($foto['name']);
+                            $urlFoto = "http://192.168.0.24/apis/uploads/" . basename($foto['name']);
                             $stmt->bindValue(':foto', $urlFoto); // Guarda la URL de la foto
                             $stmt->bindValue(':nombres', $_POST['nombres']);
                             $stmt->bindValue(':apellidos', $_POST['apellidos']);
@@ -227,13 +145,13 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                             $stmt->bindValue(':edad', $_POST['edad']);
                             $stmt->bindValue(':id_usuario', $userId);
 
-                            if($stmt->execute()){
+                            if ($stmt->execute()) {
                                 http_response_code(201);
                                 echo json_encode(['message' => 'Cliente creado']);
                             } else {
                                 http_response_code(500);
-                                error_log('Error al crear cliente: ' . print_r($stmt->errorInfo(), true));
-                                echo json_encode(['message' => 'Error al crear cliente']);
+                                error_log('Error al crear Cliente: ' . print_r($stmt->errorInfo(), true));
+                                echo json_encode(['message' => 'Error al crear Cliente']);
                             }
                     } else {
                         http_response_code(500);
@@ -264,10 +182,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
         global $pdo;
 
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
-            //$rutaBase = 'C:/xampp1/htdocs/apis/uploads/';
-            //$extensionesPermitidas = ['jpg', 'jpeg', 'png', 'pdf', 'docx'];
-            //$ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-            //$extensionesPermitidas = ['jpg', 'jpeg', 'png', 'pdf', 'docx'];
             
             // Verificar que todos los archivos se procesaron correctamente
             if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK 
@@ -277,9 +191,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                 $foto = $_FILES['foto'];
                 $certificadoPath = $_FILES['certificado'];
                 $antecedentePath = $_FILES['antecedente'];
-                //$foto = procesarArchivo('foto', 'C:/xampp1/htdocs/apis/uploads/', $extensionesPermitidas);
-                //$certificadoPath = procesarArchivo('certificado', 'C:/xampp1/htdocs/apis/uploads/', $extensionesPermitidas);
-                //$antecedentePath = procesarArchivo('antecedente', 'C:/xampp1/htdocs/apis/uploads/', $extensionesPermitidas);
                 
                 // Validar la extensión del archivo
                 $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
@@ -305,11 +216,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                 $rutaDestino = 'C:/xampp1/htdocs/apis/uploads/' . basename($foto['name']);
                 $rutaDestino1 = 'C:/xampp1/htdocs/apis/uploads/' . basename($certificadoPath['name']);
                 $rutaDestino2 = 'C:/xampp1/htdocs/apis/uploads/' . basename($antecedentePath['name']);
-                // Validar la extensión del archivo foto
-                //$ext = pathinfo($foto, PATHINFO_EXTENSION);
-               // $foto = $_FILES['foto'];
-                //$certificadoPath = $_FILES['certificado'];
-                //$antecedentePath = $_FILES['antecedente'];
 
                 //mueve el archivo al directorio deseado
                 if(move_uploaded_file($foto['tmp_name'], $rutaDestino) 
@@ -369,9 +275,9 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                         }
                         
                         // Asigna los valores a los parámetros usando bindValue
-                        $urlFoto = "http://localhost/apis/uploads/" . basename($foto['name']);
-                        $urlCertificado = "http://localhost/apis/uploads/" . basename($certificadoPath['name']);
-                        $urlAntecedente = "http://localhost/apis/uploads/" . basename($antecedentePath['name']);
+                        $urlFoto = "http://192.168.0.24/apis/uploads/" . basename($foto['name']);
+                        $urlCertificado = "http://192.168.0.24/apis/uploads/" . basename($certificadoPath['name']);
+                        $urlAntecedente = "http://192.168.0.24/apis/uploads/" . basename($antecedentePath['name']);
 
                         $stmt->bindValue(':foto', $urlFoto); //guarda la URL de la foto
                         $stmt->bindValue(':nombres', $nombres);
@@ -405,105 +311,12 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                     http_response_code(500);
                     echo json_encode(['message' => 'Error al procesar los archivos']);
                 }   
-                /* Validación de parámetros
-                $nombres = isset($_POST['nombres']) ? $_POST['nombres'] : ''; 
-                $apellidos = isset($_POST['apellidos']) ? $_POST['apellidos'] : ''; 
-                $numDoc = isset($_POST['numDoc']) ? intval($_POST['numDoc']) : null; 
-                $email = isset($_POST['email']) ? $_POST['email'] : ''; 
-                $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : ''; 
-                $edad = isset($_POST['edad']) ? intval($_POST['edad']) : null;
-                $tipSer = isset($_POST['tipSer']) ? $_POST['tipSer'] : ''; 
-                $usuario = isset($_POST['usuario']) ? $_POST['usuario'] : '';
-                $contrasena = isset($_POST['contrasena']) ? $_POST['contrasena'] : '';*/
-                
-                /* Validación de parámetros
-                if (empty($nombres) || empty($apellidos) || is_null($numDoc) || empty($email) || empty($telefono) || is_null($edad) || empty($tipSer) || empty($usuario) || empty($contrasena)) {
-                    error_log('Parámetros faltantes: ' . print_r($_POST, true));
-                    http_response_code(400);
-                    echo json_encode(['message' => 'Faltan parámetros requeridos']);
-                    return;
-                }
-
-                //VERIFICA QUE EL EMAIL SEA VALIDO
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    http_response_code(400);
-                    echo json_encode(['message' => 'Email no válido']);
-                    return;
-                }*/
-
-                //error_log('Datos a insertar: ' . print_r($_POST, true));
-                //error_log('Ruta de la foto: ' . $rutaBase);
-
-                // Insertar primero en la tabla de usuarios
-                /*$stmt = $pdo->prepare("INSERT INTO usuarios (usuario, contrasena, tipo) VALUES (:usuario, :contrasena, :tipo)");
-                $stmt->bindValue(':usuario', $usuario);
-                $stmt->bindValue(':contrasena', password_hash($contrasena, PASSWORD_DEFAULT));
-                $stmt->bindValue(':tipo', 'trabajador');
-
-                if ($stmt->execute()) {
-                    $userId = $pdo->lastInsertId();
-                    
-                    // Insertar en la tabla de trabajador
-                    $stmt = $pdo->prepare("INSERT INTO trabajador (foto, nombres, apellidos, numDoc, email, telefono, edad, tipSer, certificado, antecedente, id_usuario) 
-                    VALUES (:foto, :nombres, :apellidos, :numDoc, :email, :telefono, :edad, :tipSer, :certificado, :antecedente, :id_usuario)");
-                    
-                    if (!$stmt) {
-                        die("Error al preparar la consulta: " . implode(", ", $pdo->errorInfo()));
-                    }
-
-                    $stmt->bindValue(':foto', $foto);
-                    $stmt->bindValue(':nombres', $nombres);
-                    $stmt->bindValue(':apellidos', $apellidos);
-                    $stmt->bindValue(':numDoc', $numDoc); 
-                    $stmt->bindValue(':email', $email);
-                    $stmt->bindValue(':telefono', $telefono);
-                    $stmt->bindValue(':edad', $edad); 
-                    $stmt->bindValue(':tipSer', $tipSer);
-                    $stmt->bindValue(':certificado', $certificadoPath);
-                    $stmt->bindValue(':antecedente', $antecedentePath);
-                    $stmt->bindValue(':id_usuario', $userId);
-
-                    if ($stmt->execute()) {
-                        http_response_code(201);
-                        echo json_encode(['message' => 'Trabajador creado']);
-                    } else {
-                        http_response_code(500);
-                        error_log('Error al crear trabajador: ' . print_r($stmt->errorInfo(), true));
-                        echo json_encode(['message' => 'Error al crear trabajador']);
-                    }
-                } else {
-                    http_response_code(500);
-                    error_log('Error al crear usuario: ' . print_r($stmt->errorInfo(), true));
-                    echo json_encode(['message' => 'Error al crear usuario']);
-                }    
-            } else {
-                error_log('Error al mover el archivo: ' . print_r($foto, true));
-                error_log('Error al mover el archivo: ' . print_r($antecedentePath, true));
-                error_log('Error al mover el archivo: ' . print_r($certificadoPath, true));
-                http_response_code(500);
-                echo json_encode(['message' => 'Error al procesar los archivos']);
-            }*/
             } else {
                 http_response_code(400);
                 echo json_encode(['message' => 'No se ha enviado un archivo']);
             }
         } 
     }
-
-    /* Función para procesar archivos
-    function procesarArchivo($nombreArchivo, $rutaBase, $extensionesPermitidas) {
-        if (isset($_FILES[$nombreArchivo]) && $_FILES[$nombreArchivo]['error'] == UPLOAD_ERR_OK) {
-            $ext = pathinfo($_FILES[$nombreArchivo]['name'], PATHINFO_EXTENSION);
-            if (!in_array(strtolower($ext), $extensionesPermitidas)) {
-                return null;
-            }
-            $rutaDestino = $rutaBase . basename($_FILES[$nombreArchivo]['name']);
-            if (move_uploaded_file($_FILES[$nombreArchivo]['tmp_name'], $rutaDestino)) {
-                return $rutaDestino;
-            }
-        }
-        return null;
-    }*/
 
     // Funciones para manejar calificaciones
     function getCalificacion() {
@@ -668,6 +481,16 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['message' => 'Error: ' . implode(":",$e->errorInfo)]);
+        }
+
+        searchServicios() {
+            try {
+                $servicios = obtenerServicios($pdo);
+                echo json_encode($servicios);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error interno del servidor: ' . $e->getMessage()]);
+            }
         }
     }
     // Llamar a la función que maneja las solicitudes

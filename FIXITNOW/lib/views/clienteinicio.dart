@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:FIXITNOW/views/mensaje.dart';
 import 'package:FIXITNOW/views/menucliente.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
@@ -118,16 +120,16 @@ class _ClientHomePageState extends State<ClientHomePage> {
                       child: Text('Plomería'),
                     ),
                     const PopupMenuItem<String>(
-                      value: 'Jardinería',
-                      child: Text('Jardinería'),
+                      value: 'Electricidad',
+                      child: Text('Electricidad'),
                     ),
                     const PopupMenuItem<String>(
-                      value: 'Aire Acondicionado',
-                      child: Text('Aire Acondicionado'),
+                      value: 'Mecánica',
+                      child: Text('Mecánica'),
                     ),
                     const PopupMenuItem<String>(
-                      value: 'Servicio Doméstico',
-                      child: Text('Servicio Doméstico'),
+                      value: 'Carpintería',
+                      child: Text('Carpintería'),
                     ),
                   ],
                 ),
@@ -136,8 +138,20 @@ class _ClientHomePageState extends State<ClientHomePage> {
             const SizedBox(height: 20),
             // Lista de trabajadores basada en el filtro seleccionado
             Expanded(
-              child: ListView(
-                children: _getFilteredWorkers(),
+              child: FutureBuilder<List<Widget>>(
+                future: _getFilteredWorkers(),
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if(snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if(!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No se encontraron trabajadores.'));
+                  } else {
+                    return ListView(children: snapshot.data!);
+                  }
+                },
+                //children: _getFilteredWorkers(),
               ),
             ),
           ],
@@ -146,41 +160,79 @@ class _ClientHomePageState extends State<ClientHomePage> {
     );
   }
 
-  // Método para obtener los trabajadores filtrados
-  List<Widget> _getFilteredWorkers() {
-    List<Map<String, String>> workers = [
-      {'name': 'Nombre del Trabajador', 'service': 'PLOMERÍA'},
-      {'name': 'Nombre del Trabajador', 'service': 'JARDINERÍA'},
-      {'name': 'Nombre del Trabajador', 'service': 'AIRE ACONDICIONADO'},
-      {'name': 'Nombre del Trabajador', 'service': 'SERVICIO DOMÉSTICO'},
-    ];
+  /* Método para reemplazar "localhost" por la dirección IP
+  String _replaceLocalhostWithIP(String url) {
+    return url.replaceAll('localhost', '192.168.0.24'); // Cambia por la IP de tu computadora
+  }*/
 
-    // Filtrar según el servicio seleccionado
-    if (_selectedFilter != 'Todos') {
-      workers = workers
-          .where((worker) => worker['service'] == _selectedFilter.toUpperCase())
-          .toList();
+  // Método para obtener los trabajadores filtrados desde la API
+  Future<List<Widget>> _getFilteredWorkers() async {
+  List<Widget> workerTiles = [];
+    try {
+      // URL base de la API
+      String url = 'http://192.168.0.24/apis/buscar.php';
+
+      // Agregar el filtro de servicio si no es 'Todos'
+      if (_selectedFilter != 'Todos') {
+        url += '?servicio=${_selectedFilter.toUpperCase()}';
+      }
+
+      // Realizar la solicitud GET
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Decodificar la respuesta JSON
+        List<dynamic> workers = json.decode(response.body);
+
+        if (workers.isEmpty) {
+          // Respuesta vacía
+          return [
+            const Center(child: Text('No se encontraron trabajadores.')),
+          ];
+        }
+
+        // Construir la lista de trabajadores
+        workerTiles = workers.map((worker) {
+          // Obtener y reemplazar la URL de la imagen si es necesario
+          String imageUrl = worker['foto'] ?? '';  // O el campo que contiene la imagen
+          return _buildWorkerTile(
+            '${worker['nombres']} ${worker['apellidos']}',
+            worker['tipSer'], // Asegúrate de incluir `tipSer` en la respuesta
+            imageUrl,
+          );
+        }).toList();
+      } else {
+        throw Exception('Error al obtener los trabajadores: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al cargar los trabajadores: $e');
+      workerTiles = [
+        const Center(
+          child: Text('No se pudieron cargar los trabajadores.'),
+        ),
+      ];
     }
-
-    // Construir la lista de trabajadores
-    return workers.map((worker) {
-      return _buildWorkerTile(worker['name']!, worker['service']!);
-    }).toList();
+    return workerTiles;
   }
 
-  // Método para construir los elementos de la lista de trabajadores
-  Widget _buildWorkerTile(String workerName, String service) {
-    return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: Colors.cyanAccent,
-        child: Icon(Icons.tag_faces, color: Colors.black),
+  Widget _buildWorkerTile(String name, String serviceType, String imageUrl) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(8),
+        leading: imageUrl.isNotEmpty
+            ? CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(imageUrl), //usando NetworkImage para cargar la URL
+              )
+            : const CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.person, color: Colors.white),
+              ),
+        title: Text(name),
+        subtitle: Text(serviceType),
       ),
-      title: Text(workerName),
-      subtitle: Text(service),
-      onTap: () {
-        // Acción al presionar el trabajador
-        print('$workerName seleccionado');
-      },
     );
   }
 }

@@ -7,27 +7,6 @@ class ControladorAPI {
   final String baseUrl = 'http://192.168.0.24/apis/api.php'; // Cambia la URL según sea necesario
   var logger = Logger();
 
-  //método para crear un usuario
-  /*Future<void> crearUsuario(Map<String, dynamic> usuarioData) async {
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/usuarios'));
-
-    //verificar si hay datos
-    if(usuarioData.isNotEmpty) {
-      request.fields['usuario'] = usuarioData['usuario'];
-      request.fields['contrasena'] = usuarioData['contrasena'];
-      request.fields['tipo'] = usuarioData['tipo']; //identifica el tipo de usuario si cliente o trabajador
-    } 
-
-    //enviar la solicitud
-    var response = await request.send();
-
-    if(response.statusCode == 200) {
-      logger.i('Usuario creado exitosamente');
-    } else {
-      throw Exception('Error al crear Usuario: ${response.statusCode}');
-    }
-  }*/
-
   // Método para crear un cliente
   Future<void> crearCliente(Map<String, dynamic> clienteData, String? imagePath) async {
     var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/clientes'));
@@ -51,8 +30,11 @@ class ControladorAPI {
     var response = await request.send();
 
     if (response.statusCode == 200) {
-      logger.i('Cliente creado exitosamente');
+      var responseBody = await response.stream.bytesToString();
+      logger.i('Cliente creado exitosamente $responseBody');
     } else {
+      var responseBody = await response.stream.bytesToString();
+      logger.e('Error al crear Cliente: ${response.statusCode}, Detalle: $responseBody');
       throw Exception('Error al crear Cliente: ${response.statusCode}');
     }
   }
@@ -197,7 +179,7 @@ class ControladorAPI {
     }
   }
 
-  // Método para crear un servicio
+  /*Método para crear un servicio
   Future<void> crearServicio(Map<String, dynamic> servicioData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/servicios'),
@@ -213,7 +195,5 @@ class ControladorAPI {
       logger.e('Error al crear Servicio: ${response.body}');
       throw Exception('Error al crear servicio: ${response.body}');
     }
-  }
-
-  
+  }*/
 }

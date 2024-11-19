@@ -85,7 +85,7 @@ class _ClienteFormularioState extends State<ClienteFormulario> {
         //instancia del controlador y llamado de ambos métodos
         ControladorAPI controlador = ControladorAPI();
         //await controlador.crearUsuario(usuarioData); //llama al método del controlador
-        await controlador.crearCliente(clienteData, _image?.path); // Llama al método del controlador
+        await controlador.crearCliente(clienteData, _image?.path); // Llama al método del controlador 
         Registroexito.mostrarDialogoExitoso(context, '¡El registro ha sido exitoso!'); // Muestra el diálogo de éxito
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al crear cliente: $e')));
