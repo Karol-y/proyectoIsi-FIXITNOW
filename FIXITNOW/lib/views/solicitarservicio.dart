@@ -419,6 +419,9 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
                         ),
                       ),
                     );
+                     Future.delayed(const Duration(seconds: 2), () {
+                      Navigator.pop(context); // Regresa a la vista anterior (ClientHomePage)
+                    });
                   }
                 },
                 child: const Text('Solicitar Servicio'),
