@@ -105,7 +105,7 @@ class Registroexito {
                   onPressed: () {
                     Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    MaterialPageRoute(builder: (context) => const MyApp()),
                     );  // Redirigir a la pantalla de inicio
                   },
                   style: ElevatedButton.styleFrom(

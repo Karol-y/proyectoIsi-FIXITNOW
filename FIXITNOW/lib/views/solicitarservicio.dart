@@ -1,180 +1,8 @@
-/*import 'package:flutter/material.dart';
-
-import 'package:table_calendar/table_calendar.dart';
-
-class WorkerDetailDialog extends StatefulWidget {
-  const WorkerDetailDialog({super.key});
-
-  @override
-  State<WorkerDetailDialog> createState() => _WorkerDetailDialogState();
-}
-
-class _WorkerDetailDialogState extends State<WorkerDetailDialog> {
-  DateTime focusedDay = DateTime.now();
-  DateTime? selectedDay;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Encabezado con la foto y el nombre
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.grey[200],
-                    child: const Icon(Icons.person, color: Colors.white, size: 40),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nombre del trabajador',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Tipo de servicio',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.blueAccent,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Aquí va la descripción del trabajador. Puede incluir experiencia, habilidades o cualquier otro detalle relevante.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  decoration: TextDecoration.none,
-                ),
-                textAlign: TextAlign.justify,
-              ),
-              const SizedBox(height: 20),
-              // Título "Fecha del servicio"
-              const Text(
-                'Fecha del servicio',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TableCalendar(
-                      firstDay: DateTime.now(),
-                      lastDay: DateTime.now().add(const Duration(days: 365)),
-                      focusedDay: focusedDay,
-                      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-                      onDaySelected: (selectedDayNew, focusedDayNew) {
-                        setState(() {
-                          selectedDay = selectedDayNew;
-                          focusedDay = focusedDayNew;
-                        });
-                      },
-                      calendarStyle: const CalendarStyle(
-                        todayDecoration: BoxDecoration(
-                          color: Colors.blueAccent,
-                          shape: BoxShape.circle,
-                        ),
-                        selectedDecoration: BoxDecoration(
-                          color: Colors.greenAccent,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (selectedDay != null) {
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Fecha seleccionada: ${selectedDay!.toLocal().toString().split(' ')[0]}'),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Por favor selecciona una fecha.'),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Solicitar Servicio',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Center(
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.blueAccent),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}*/
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Para formatear fechas y horas
 
 class WorkerDetailsPage extends StatefulWidget {
+  final String workerImage;
   final String workerName;
   final String serviceType;
   final String description;
@@ -183,6 +11,7 @@ class WorkerDetailsPage extends StatefulWidget {
 
   const WorkerDetailsPage({
     super.key,
+    required this.workerImage,
     required this.workerName,
     required this.serviceType,
     required this.description,
@@ -240,10 +69,15 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, color: Colors.white),
+                  backgroundImage: widget.workerImage.isNotEmpty                
+                    ? NetworkImage(widget.workerImage) // URL de la imagen
+                    : null, // Fondo gris si no hay imagen
+                  child: widget.workerImage.isEmpty
+                    ? const Icon(Icons.person, color: Colors.white)
+                    : null,
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -419,7 +253,7 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
                         ),
                       ),
                     );
-                     Future.delayed(const Duration(seconds: 2), () {
+                    Future.delayed(const Duration(seconds: 2), () {
                       Navigator.pop(context); // Regresa a la vista anterior (ClientHomePage)
                     });
                   }
@@ -447,5 +281,3 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
     );
   }
 }
-
-

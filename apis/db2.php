@@ -26,11 +26,11 @@ $pass = '123456'; // Tu contraseña de base de datos
         function obtenerTrabajadores($pdo, $tipSer = null) {
             if ($tipSer) {
                 // Consulta para un tipo de servicio específico
-                $stmt = $pdo->prepare("SELECT foto, nombres, apellidos, tipSer FROM trabajadores WHERE tipSer = :tipSer");
+                $stmt = $pdo->prepare("SELECT foto, nombres, apellidos, tipSer, telefono, email, descripcion FROM trabajadores WHERE tipSer = :tipSer");
                 $stmt->bindValue(':tipSer', $tipSer);
             } else {
                 // Consulta para todos los trabajadores
-                $stmt = $pdo->prepare("SELECT foto, nombres, apellidos, tipSer FROM trabajadores");
+                $stmt = $pdo->prepare("SELECT foto, nombres, apellidos, tipSer, telefono, email, descripcion FROM trabajadores");
             }
             $stmt->execute();
             $trabajadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -71,7 +71,7 @@ $pass = '123456'; // Tu contraseña de base de datos
                             'foto' => $trabajadorData['foto'],
                             'nombres' => $trabajadorData['nombres'],
                             'apellidos' => $trabajadorData['apellidos'],
-                            'tipo_servicio' => $trabajadorData['tipSer']
+                            'tipo_servicio' => $trabajadorData['tipSer'],
                         ]
                     ];
                 } else {
@@ -86,6 +86,56 @@ $pass = '123456'; // Tu contraseña de base de datos
                     'message' => 'Usuario o contraseña incorrectos.'
                 ];
             }
+        }
+
+        /*funcion para obtener los tipos de servicios disponibles
+        function obtenerServicios($pdo){
+            try {
+                // Consulta para obtener los tipos de servicio únicos
+                $query = "SELECT DISTINCT tipSer AS tipoServicio FROM trabajadores";
+                $stmt = $pdo->prepare($query);
+                $stmt->execute();
+        
+                // Obtener los resultados como un arreglo
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+                return $result;
+            } catch (PDOException $e) {
+                // Manejo de errores
+                return ['error' => 'Error al obtener los tipos de servicios: ' . $e->getMessage()];
+            }
+        }*/
+
+        function messages($action, $data) { 
+            global $pdo; 
+
+            if ($action == 'sendMessage') { 
+                $sender_id = $data['sender_id']; 
+                $receiver_id = $data['receiver_id']; 
+                $message = $data['message']; $stmt = 
+                
+                $pdo->prepare("INSERT INTO mensajes (sender_id, receiver_id, message) VALUES (:sender_id, :receiver_id, :message)"); 
+                $stmt->bindParam(':sender_id', $sender_id); $stmt->bindParam(':receiver_id', $receiver_id); 
+                $stmt->bindParam(':message', $message); $stmt->execute(); 
+                
+                return json_encode(['status' => 'Message sent']); 
+            } 
+            
+            if ($action == 'getMessages') { 
+                $user1_id = $data['user1_id']; 
+                $user2_id = $data['user2_id']; 
+                $stmt = $pdo->prepare("SELECT * FROM mensajes WHERE (sender_id = :user1_id AND receiver_id = :user2_id) OR (sender_id = :user2_id AND receiver_id = :user1_id) ORDER BY timestamp ASC"); 
+                $stmt->bindParam(':user1_id', $user1_id); $stmt->bindParam(':user2_id', $user2_id); $stmt->execute(); 
+                $messages = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+                
+                echo "<pre>"; 
+                print_r($messages); // Verifica los datos sin procesar 
+                echo "</pre>";
+
+                return json_encode($messages); 
+            } 
+            
+            return json_encode(['status' => 'Invalid action']); 
         }
 
     } catch(PDOException $e) {

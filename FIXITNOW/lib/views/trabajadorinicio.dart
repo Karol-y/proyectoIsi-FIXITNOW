@@ -152,3 +152,170 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     );
   }
 }
+
+/*import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;  // Para hacer peticiones HTTP
+import 'dart:convert';  // Para convertir el JSON en objetos Dart
+import 'package:FIXITNOW/views/mensaje.dart';
+import 'package:FIXITNOW/views/menutrabajador.dart'; 
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Worker App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const WorkerHomePage(),
+    );
+  }
+}
+
+class WorkerHomePage extends StatefulWidget {
+  const WorkerHomePage({super.key});
+
+  @override
+  _WorkerHomePageState createState() => _WorkerHomePageState();
+}
+
+class _WorkerHomePageState extends State<WorkerHomePage> {
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+
+  late String nombreTrabajador;
+  late String servicioOfrecido;
+  late String descripcion;
+  late String fotoUrl;
+
+  // Método para obtener los datos del trabajador desde la API
+  Future<void> obtenerDatosTrabajador() async {
+    final response = await http.get(Uri.parse('http://192.168.0.24/api/trabajador.php'));
+    
+    if (response.statusCode == 200) {
+      final datos = jsonDecode(response.body);
+      
+      setState(() {
+        nombreTrabajador = datos['nombres'];  // Asegúrate de que estos nombres coincidan con los del JSON.
+        servicioOfrecido = datos['servicio'];
+        descripcion = datos['descripcion'];
+        fotoUrl = datos['foto'];  // Aquí es donde obtienes la URL o la ruta de la imagen
+      });
+    } else {
+      throw Exception('Error al cargar los datos del trabajador');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerDatosTrabajador();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MenuScreen()),
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatScreen()),
+              );
+            },
+          ),
+        ],
+        title: const Text('Inicio'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              onTap: _pickImage,
+              child: Row(
+                children: [
+                  _image != null
+                      ? CircleAvatar(
+                          radius: 30,
+                          backgroundImage: FileImage(_image!),
+                        )
+                      : CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(fotoUrl), // Aquí se carga la foto desde la URL.
+                        ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nombreTrabajador.isNotEmpty ? nombreTrabajador : 'Nombre del Trabajador',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Text(
+                        '(ACTIVO)',
+                        style: TextStyle(color: Colors.green),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              servicioOfrecido.isNotEmpty ? servicioOfrecido : 'Servicio que Ofrece',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              descripcion.isNotEmpty ? descripcion : 'Descripción...',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const ListTile(
+              leading: Icon(Icons.person_outline),
+              title: Text('(Nombre del Cliente)'),
+              subtitle: Text('Requiere de tu servicio'),
+            ),
+            const ListTile(
+              leading: Icon(Icons.person_outline),
+              title: Text('(Nombre del Cliente)'),
+              subtitle: Text('Ha calificado tu servicio'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+}
+*/

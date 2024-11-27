@@ -482,16 +482,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
             http_response_code(500);
             echo json_encode(['message' => 'Error: ' . implode(":",$e->errorInfo)]);
         }
-
-        searchServicios() {
-            try {
-                $servicios = obtenerServicios($pdo);
-                echo json_encode($servicios);
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(['error' => 'Error interno del servidor: ' . $e->getMessage()]);
-            }
-        }
     }
     // Llamar a la función que maneja las solicitudes
     handleRequest();
