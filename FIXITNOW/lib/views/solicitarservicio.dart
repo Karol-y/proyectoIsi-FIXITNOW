@@ -282,8 +282,9 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
   }
 }*/
 
-import 'package:FIXITNOW/views/comentarios.dart';
+import 'package:FIXITNOW/views/perfiltrabajadorclient.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart'; // Para formatear fechas y horas
 
 class WorkerDetailsPage extends StatefulWidget {
@@ -341,11 +342,11 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
   }
 
   // Navegar a la vista de ReviewsPage
-  void _goToReviewsPage(BuildContext context) {
+  void _goToDriverProfilePage(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ReviewsPage(), // Aquí redirige a ReviewsPage
+        builder: (context) => const DriverProfilePage(), // Aquí redirige a ReviewsPage
       ),
     );
   }
@@ -365,7 +366,7 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: () => _goToReviewsPage(context), // Redirige al tocar la imagen
+                  onTap: () => _goToDriverProfilePage(context), // Redirige al tocar la imagen
                   child: CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.grey,
@@ -379,7 +380,7 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
                 ),
                 const SizedBox(width: 16),
                 GestureDetector(
-                  onTap: () => _goToReviewsPage(context), // Redirige al tocar el nombre
+                  onTap: () => _goToDriverProfilePage(context), // Redirige al tocar el nombre
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -555,6 +556,7 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
                       ),
                     );
                     Future.delayed(const Duration(seconds: 2), () {
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context); // Regresa a la vista anterior (ClientHomePage)
                     });
                   }
