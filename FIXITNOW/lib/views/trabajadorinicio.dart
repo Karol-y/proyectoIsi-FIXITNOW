@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:FIXITNOW/views/mensaje.dart';
@@ -151,15 +151,12 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       ),
     );
   }
-}
-
-/*import 'package:flutter/material.dart';
+}*/
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;  // Para hacer peticiones HTTP
-import 'dart:convert';  // Para convertir el JSON en objetos Dart
 import 'package:FIXITNOW/views/mensaje.dart';
-import 'package:FIXITNOW/views/menutrabajador.dart'; 
+import 'package:FIXITNOW/views/menutrabajador.dart';
 
 void main() {
   runApp(const MyApp());
@@ -188,37 +185,53 @@ class WorkerHomePage extends StatefulWidget {
 }
 
 class _WorkerHomePageState extends State<WorkerHomePage> {
-  File? _image;
+  File? _image; // Variable para almacenar la imagen seleccionada.
   final ImagePicker _picker = ImagePicker();
 
-  late String nombreTrabajador;
-  late String servicioOfrecido;
-  late String descripcion;
-  late String fotoUrl;
+  // Variable booleana para el estado activo/inactivo
+  bool _isActive = true; // Su valor puede cambiar según los datos de la base de datos.
 
-  // Método para obtener los datos del trabajador desde la API
-  Future<void> obtenerDatosTrabajador() async {
-    final response = await http.get(Uri.parse('http://192.168.0.24/api/trabajador.php'));
-    
-    if (response.statusCode == 200) {
-      final datos = jsonDecode(response.body);
-      
+  // Método para alternar el estado de _isActive
+  void _toggleActiveState() {
+    setState(() {
+      _isActive = !_isActive; // Alterna entre true y false
+    });
+  }
+
+  // Método para seleccionar una imagen de la galería.
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
       setState(() {
-        nombreTrabajador = datos['nombres'];  // Asegúrate de que estos nombres coincidan con los del JSON.
-        servicioOfrecido = datos['servicio'];
-        descripcion = datos['descripcion'];
-        fotoUrl = datos['foto'];  // Aquí es donde obtienes la URL o la ruta de la imagen
+        _image = File(pickedFile.path);
       });
-    } else {
-      throw Exception('Error al cargar los datos del trabajador');
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    obtenerDatosTrabajador();
-  }
+  // Lista de servicios simulada con fecha y hora agregadas
+  final List<Map<String, String>> _services = [
+    {
+      "foto": "https://via.placeholder.com/150", // URL de ejemplo
+      "nombre": "Cliente 1",
+      "contacto": "555-1234",
+      "fecha": "27/11/2024",
+      "hora": "14:00",
+    },
+    {
+      "foto": "https://via.placeholder.com/150", // URL de ejemplo
+      "nombre": "Cliente 2",
+      "contacto": "555-5678",
+      "fecha": "28/11/2024",
+      "hora": "10:30",
+    },
+    {
+      "foto": "https://via.placeholder.com/150", // URL de ejemplo
+      "nombre": "Cliente 3",
+      "contacto": "555-9101",
+      "fecha": "29/11/2024",
+      "hora": "16:00",
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +255,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                 MaterialPageRoute(builder: (context) => ChatScreen()),
               );
             },
-          ),
+          )
         ],
         title: const Text('Inicio'),
       ),
@@ -260,62 +273,141 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                           radius: 30,
                           backgroundImage: FileImage(_image!),
                         )
-                      : CircleAvatar(
+                      : const CircleAvatar(
                           radius: 30,
-                          backgroundImage: NetworkImage(fotoUrl), // Aquí se carga la foto desde la URL.
+                          backgroundColor: Colors.blue,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 30,
+                            color: Colors.white,
+                          ),
                         ),
                   const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        nombreTrabajador.isNotEmpty ? nombreTrabajador : 'Nombre del Trabajador',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const Text(
-                        '(ACTIVO)',
-                        style: TextStyle(color: Colors.green),
-                      ),
-                    ],
+                  GestureDetector(
+                    onTap: _toggleActiveState, // Alternar estado al hacer clic
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Nombre del Trabajador',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          _isActive ? 'Activo' : 'Inactivo', // Estado dinámico
+                          style: TextStyle(
+                            color: _isActive ? Colors.green : Colors.red, // Color dinámico
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              servicioOfrecido.isNotEmpty ? servicioOfrecido : 'Servicio que Ofrece',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+            const Text(
+              'Servicios',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black,
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              descripcion.isNotEmpty ? descripcion : 'Descripción...',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             const Divider(),
-            const ListTile(
-              leading: Icon(Icons.person_outline),
-              title: Text('(Nombre del Cliente)'),
-              subtitle: Text('Requiere de tu servicio'),
-            ),
-            const ListTile(
-              leading: Icon(Icons.person_outline),
-              title: Text('(Nombre del Cliente)'),
-              subtitle: Text('Ha calificado tu servicio'),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _services.length,
+                itemBuilder: (context, index) {
+                  final service = _services[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          // Foto del cliente
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(service["foto"]!),
+                          ),
+                          const SizedBox(width: 10),
+                          // Información del cliente
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  service["nombre"]!,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  service["contacto"]!,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Fecha: ${service["fecha"]!}",
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        Text(
+                                          "Hora: ${service["hora"]!}",
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    // Botones debajo de fecha y hora
+                                    Row(
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            // Acción para el botón verde
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            minimumSize: const Size(30, 30), // Tamaño reducido
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                          ),
+                                          child: const Icon(Icons.check, size: 16, color: Colors.white),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            // Acción para el botón rojo
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            minimumSize: const Size(30, 30), // Tamaño reducido
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                          ),
+                                          child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
 }
-*/
