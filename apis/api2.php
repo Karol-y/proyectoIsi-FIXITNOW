@@ -27,10 +27,16 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
         if ($resultado['success']) {
             http_response_code(200);
-            echo json_encode(['message' => 'Inicio de sesión exitoso', 'tipo' => $resultado['tipo']]);
+            echo json_encode([
+                'success' => true,
+                'tipo' => $resultado['tipo'],
+                'numDoc' => $resultado['numDoc'], //se envia como cadena de caracateres
+            ]);
+            /*http_response_code(200);
+            echo json_encode(['message' => 'Inicio de sesión exitoso', 'tipo' => $resultado['tipo']]);*/
         } else {
             http_response_code(401);
-            echo json_encode(['message' => 'Credenciales incorrectas']);
+            echo json_encode(['succes' => false, 'message' => 'Credenciales incorrectas']);
         }
     }
 

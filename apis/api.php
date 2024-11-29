@@ -44,7 +44,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                     case 'DELETE':
                         return deleteTrabajador($uri[1]);
                 }
-            } elseif ($uri[0] === 'calificacion') {
+            } elseif ($uri[0] === 'calificaciones') {
                 switch ($method) {
                     case 'GET':
                         return getCalificaciones();
@@ -54,9 +54,9 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
             } elseif ($uri[0] === 'servicios') {
                 switch ($method) {
                     case 'GET':
-                        return searchServicios(); // Llamar a la función de búsqueda
+                        return getServicios(); // Llamar a la función de búsqueda
                     case 'POST':
-                        return createServicio(); // Llamar a la función para crear un servicio
+                        return createServicio(); // Llamar a la función para crear un servicio    
                 }
             }
         }
@@ -245,13 +245,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
                         return;
                     }
 
-                    /*VERIFICA QUE EL EMAIL SEA VALIDO
-                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        http_response_code(400);
-                        echo json_encode(['message' => 'Email no válido']);
-                        return;
-                    }*/
-
                     error_log('Datos a insertar: ' . print_r($_POST, true));
                     error_log('Ruta de la foto: ' . $rutaDestino);
                     error_log('Ruta del certificado: ' . $rutaDestino1);
@@ -328,52 +321,69 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
     function createCalificacion() {
         global $pdo;
-        $data = json_decode(file_get_contents("php://input"), true);
 
-        // Validación de parámetros
-        if (!isset($data['Número de identidad del TRABAJADOR'], 
-                    $data['Comentario'], 
-                    $data['Puntuación'])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Faltan parámetros requeridos']);
-            return;
-        }
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-        // Asegúrate de que el número de identidad sea un entero válido
-        if (!is_numeric($data['Número de identidad del TRABAJADOR'])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'El número de identidad debe ser un número válido']);
-            return;
-        }
+            //obtener datos del cuerpo de la solicitud
+            $data = json_decode(file_get_contents('php://input'), true);
+            $trabajador_id = isset($data['trabajador_id']) ? intval($data['trabajador_id']) : null;
+            $cliente_id = isset($data['cliente_id']) ? intval($data['cliente_id']) : null;
+            $comentario = isset($data['comentario']) ? $data['comentario'] : '';
+            $puntuacion = isset($data['puntuacion']) ? intval($data['puntuacion']) : null;
 
-        // Asegúrate de que Puntuación sea un número válido
-        if (!is_numeric($data['Puntuación']) || $data['Puntuación'] < 0 || $data['Puntuación'] > 5) {
-            http_response_code(400);
-            echo json_encode(['message' => 'La puntuación debe ser un número entre 0 y 5']);
-            return;
-        }
-
-        // Prepara la consulta SQL para insertar
-        try {
-            $stmt = $pdo->prepare("INSERT INTO calificacion (`Número de identidad del TRABAJADOR`, Comentario, Puntuación) 
-                                    VALUES (:numeroIdentidadTrabajador, :comentario, :puntuacion)");
-
-            // Asigna los valores a los parámetros usando bindValue
-            $stmt->bindValue(':numeroIdentidadTrabajador', (int)$data['Número de identidad del TRABAJADOR']); // Convertir a entero
-            $stmt->bindValue(':comentario', htmlspecialchars($data['Comentario']));
-            $stmt->bindValue(':puntuacion', (int)$data['Puntuación']); // Convertir a entero
-
-            if ($stmt->execute()) {
-                http_response_code(201);
-                echo json_encode(['message' => 'Calificación creada']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['message' => 'Error al crear calificación']);
-                error_log(print_r($stmt->errorInfo(), true)); // Log para depuración
+            // Validación de parámetros
+            if (is_null($trabajador_id) || is_null($cliente_id) || empty($comentario) || is_null($puntuacion)) {
+                error_log('Parámetros faltantes: ' . print_r($data, true));
+                http_response_code(400);
+                echo json_encode(['message' => 'Faltan parámetros requeridos']);
+                return;
             }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['message' => 'Error: ' . implode(":",$e->errorInfo)]);
+
+            error_log('Datos a insertar: ' . print_r($_POST, true));
+
+            // Prepara la consulta SQL para insertar
+            try {
+                //verificar que cliente_id existe en la tabla clientes
+                $clienteStmt = $pdo->prepare("SELECT numDoc FROM clientes WHERE numDoc = :cliente_id");
+                $clienteStmt->bindValue(':cliente_id', $cliente_id, PDO::PARAM_INT);
+                $clienteStmt->execute();
+                if($clienteStmt->rowCount() == 0) {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Cliente no encontrado']);
+                    return;
+                }
+
+                //verificar que trabajador_id existe en la tabla trabajadores
+                $trabajadorStmt = $pdo->prepare("SELECT numDoc FROM trabajadores WHERE numDoc = :trabajador_id");
+                $trabajadorStmt->bindValue(':trabajador_id', $trabajador_id, PDO::PARAM_INT);
+                $trabajadorStmt->execute();
+                if($trabajadorStmt->rowCount() == 0) {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Trabajador no encontrado']);
+                    return;
+                }
+
+                $stmt = $pdo->prepare("INSERT INTO calificacion (trabajador_id, cliente_id, comentario, puntuacion) 
+                                        VALUES (:trabajador_id, :cliente_id, :comentario, :puntuacion)");
+
+                // Asigna los valores a los parámetros usando bindValue
+                $stmt->bindValue(':trabajador_id', $trabajador_id, PDO::PARAM_INT);
+                $stmt->bindValue(':cliente_id', $cliente_id, PDO::PARAM_INT);
+                $stmt->bindValue(':comentario', htmlspecialchars($comentario));
+                $stmt->bindValue(':puntuacion', $puntuacion, PDO::PARAM_INT);
+
+                if ($stmt->execute()) {
+                    http_response_code(201);
+                    echo json_encode(['message' => 'Calificación creada']);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['message' => 'Error al crear calificación']);
+                    error_log(print_r($stmt->errorInfo(), true)); // Log para depuración
+                }
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['message' => 'Error: ' . $e->getMessage()]);
+            }
         }
     }
 

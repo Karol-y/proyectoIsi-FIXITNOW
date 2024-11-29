@@ -29,7 +29,7 @@ class ControladorAPI {
     // Enviar la solicitud
     var response = await request.send();
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       var responseBody = await response.stream.bytesToString();
       logger.i('Cliente creado exitosamente $responseBody');
     } else {
@@ -38,33 +38,6 @@ class ControladorAPI {
       throw Exception('Error al crear Cliente: ${response.statusCode}');
     }
   }
-
-  // Método para subir documentos
-  /*Future<void> subirDocumentos(String certificadoPath, String antecedentesPath) async {
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/uploadDocuments'));
-
-    // Agregar los archivos al request
-    if(certificadoPath.isNotEmpty) {
-      request.files.add(await http.MultipartFile.fromPath('certificado', certificadoPath));
-    } else {
-      throw Exception('La ruta del certificado es inválida');
-    }
-    
-    if(certificadoPath.isNotEmpty) {
-      request.files.add(await http.MultipartFile.fromPath('antecedentes', antecedentesPath));
-    } else {
-      throw Exception('La ruta del antecedente es inválida');
-    }
-    
-    // Enviar la solicitud
-    var response = await request.send();
-
-    if (response.statusCode == 200) {
-      logger.i('Documentos subidos exitosamente');
-    } else {
-      throw Exception('Error al subir documentos: ${response.statusCode}');
-    }
-  }*/
 
   Future<Map <String, String>> subirDocumentos(String certificadoPath, String antecedentesPath) async {
    
@@ -124,39 +97,14 @@ class ControladorAPI {
       request.files.add(await http.MultipartFile.fromPath('antecedente', documentos['antecedente'] ?? ''));
     }
 
-    // Agregar el certificado al request si está disponible 
-    /*if (certificadoPath != null && certificadoPath.isNotEmpty) { 
-      request.files.add(await http.MultipartFile.fromPath('certificado', certificadoPath)); 
-    } 
-
-    // Agregar los antecedentes al request si está disponible 
-    if (antecedentesPath != null && antecedentesPath.isNotEmpty) { 
-      request.files.add(await http.MultipartFile.fromPath('antecedentes', antecedentesPath)); 
-    }*/
 
     // Enviar la solicitud para crear al trabajador
     var response = await request.send();
 
-    /*if (certificadoPath != null && antecedentesPath != null) {
-      // Llamar a la función que espera un String no nulo
-      subirDocumentos(certificadoPath, antecedentesPath);
-    } else {
-      // Manejar el caso en que certificadoPath es null
-      // Mostrar un mensaje de error al usuario
-      logger.e('Por favor, selecciona ambos documentos: Certificado y Antecedentes');
-    }*/
-
     //si los documentos no son nulos, subirlos
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       var responseBody = await response.stream.bytesToString();
       logger.i('Trabajador creado exitosamente: $responseBody');
-      // Después de crear el trabajador, subimos los documentos
-      /*if(certificadoPath != null && certificadoPath.isNotEmpty && antecedentesPath != null && antecedentesPath.isNotEmpty) {
-        //subir los documentos solo si ambor estan disponibles
-        await subirDocumentos(certificadoPath, antecedentesPath);
-      } else {
-        logger.e('Por favor, selecciona ambos documentos: Certificado y Antecedentes');
-      }*/
 
     } else {
       var responseBody = await response.stream.bytesToString();
@@ -165,35 +113,42 @@ class ControladorAPI {
     }
   }
 
-  // Método para buscar servicios
-  Future<List<dynamic>> buscarServicios(String nombreServicio) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/servicios?nombreServicio=$nombreServicio'),
-    );
+  //Método para crear un servicio
+  Future<void> enviarCalificacionOpinion({
+    required String trabajadorId,
+    required String clienteId,
+    required int rating,
+    required String opinion,
+    }) async {
+      //url de la api para enviar la calificacion
+      const String apiUrl = 'http://192.168.0.24/apis/api.php';
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      logger.e('Error al buscar Servicios: ${response.statusCode}');
-      throw Exception('Error al buscar servicios: ${response.body}');
-    }
+      //Datos que se enviarán a la solicitud
+      final Map<String, dynamic> calificacionData = {
+        'trabajador_id': trabajadorId.toString(),
+        'cliente_id': clienteId,
+        'puntuacion': rating.toString(),
+        'comentario': opinion,
+      };
+
+      try {
+        //realizar la solicitud post
+        final response = await http.post(
+          Uri.parse('$apiUrl/calificaciones'),
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: jsonEncode(calificacionData),
+        );
+
+        //verificar la respuesta del servidor
+        if(response.statusCode == 201) {
+          print('Calificación enviada con éxito');
+        } else {
+          print('Error al enviar la calificación: ${response.body}');
+        }
+      }catch(e) {
+        print('Error en al solicitud: $e');
+      }
   }
-
-  /*Método para crear un servicio
-  Future<void> crearServicio(Map<String, dynamic> servicioData) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/servicios'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(servicioData),
-    );
-
-    if (response.statusCode == 201) {
-      logger.i('Servicio creado: ${response.body}');
-    } else {
-      logger.e('Error al crear Servicio: ${response.body}');
-      throw Exception('Error al crear servicio: ${response.body}');
-    }
-  }*/
 }

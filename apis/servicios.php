@@ -9,6 +9,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
     require 'db2.php';
+//esta api, no se está consumiendo aún, pero sirve para obtener todos los servicios que haya obtenido un cliente
 
     //función para obtener datos de los trabajadores
     searchServicios() {

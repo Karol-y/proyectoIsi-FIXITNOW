@@ -19,14 +19,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ClientHomePage(),
+      home: const ClientHomePage(numDoc: ''),
     );
   }
 }
 
 // ignore: camel_case_types
 class ClientHomePage extends StatefulWidget {
-  const ClientHomePage({super.key});
+  final String numDoc; //recibe el numero de doc
+
+  const ClientHomePage({super.key, required this.numDoc});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -35,6 +37,15 @@ class ClientHomePage extends StatefulWidget {
 
 // ignore: camel_case_types
 class _ClientHomePageState extends State<ClientHomePage> {
+  late String numDocCliente;
+
+  @override
+  void initState() {
+    super.initState();
+    numDocCliente = widget.numDoc;
+    print('Valor de numDocCliente: $numDocCliente');
+  }
+
   String _selectedFilter = 'Todos'; // Opción de filtro seleccionada
   final TextEditingController _searchController = TextEditingController();
 
@@ -161,11 +172,6 @@ class _ClientHomePageState extends State<ClientHomePage> {
     );
   }
 
-  /* Método para reemplazar "localhost" por la dirección IP
-  String _replaceLocalhostWithIP(String url) {
-    return url.replaceAll('localhost', '192.168.0.24'); // Cambia por la IP de tu computadora
-  }*/
-
   // Método para obtener los trabajadores filtrados desde la API
   Future<List<Widget>> _getFilteredWorkers() async {
   List<Widget> workerTiles = [];
@@ -203,6 +209,8 @@ class _ClientHomePageState extends State<ClientHomePage> {
             worker['email'], // Email del trabajador
             worker['telefono'], // Teléfono del trabajador
             worker['descripcion'], // Descripción del trabajador
+            worker['numDoc'].toString(),
+            numDocCliente,
         );
         }).toList();
       } else {
@@ -225,7 +233,9 @@ class _ClientHomePageState extends State<ClientHomePage> {
     String imageUrl,
     String email,
     String phone,
-    String description) {
+    String description,
+    String numDoc,
+    String numDocCliente) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
@@ -247,6 +257,8 @@ class _ClientHomePageState extends State<ClientHomePage> {
             context,
             MaterialPageRoute(
               builder: (context) => WorkerDetailsPage(
+                trabajadorId: numDoc,
+                clienteId: numDocCliente,
                 workerImage: imageUrl,
                 workerName: name, 
                 serviceType: serviceType, 

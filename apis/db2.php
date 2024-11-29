@@ -10,13 +10,20 @@ $pass = '123456'; // Tu contraseña de base de datos
 
         // Función para verificar usuario y contraseña
         function verificarUsuario($pdo, $usuario, $contrasena) {
-            $stmt = $pdo->prepare("SELECT contrasena, tipo FROM usuarios WHERE usuario = :usuario");
+            $stmt = $pdo->prepare(
+                "SELECT u.id_usuario, u.contrasena, u.tipo, c.numDoc FROM usuarios u LEFT JOIN clientes c ON u.id_usuario = c.id_usuario WHERE u.usuario = :usuario");
             $stmt->bindValue(':usuario', $usuario);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($contrasena, $user['contrasena'])) {
-                return ['success' => true, 'tipo' => $user['tipo']];
+                // Guardar numDoc en una variable 
+                $numDoc = $user['numDoc'] ? strval($user['numDoc']) : null;
+                return [
+                    'success' => true, 
+                    'tipo' => $user['tipo'],
+                    'numDoc' =>$user['tipo'] === 'cliente' ? $numDoc : null
+                ];
             } else {
                 return ['success' => false];
             }
@@ -30,7 +37,7 @@ $pass = '123456'; // Tu contraseña de base de datos
                 $stmt->bindValue(':tipSer', $tipSer);
             } else {
                 // Consulta para todos los trabajadores
-                $stmt = $pdo->prepare("SELECT foto, nombres, apellidos, tipSer, telefono, email, descripcion FROM trabajadores");
+                $stmt = $pdo->prepare("SELECT foto, nombres, apellidos, numDoc, tipSer, telefono, email, descripcion FROM trabajadores");
             }
             $stmt->execute();
             $trabajadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -39,6 +46,32 @@ $pass = '123456'; // Tu contraseña de base de datos
                 return ['success' => true, 'data' => $trabajadores];
             } else {
                 return ['success' => false];
+            }
+        }
+
+        //funcion para obtener los comentarios hechos a los trabajadores, dependiendo del trabajadorId
+        function obtenerComentarios($pdo, $trabajadorId = 0) {
+            if ($trabajadorId) {
+                // Consulta para un trabajador en específico
+                $stmt = $pdo->prepare(
+                    "SELECT c.foto, c.nombres, c.apellidos, ca.comentario, ca.puntuacion 
+                    FROM calificacion ca 
+                    JOIN clientes c ON ca.cliente_id = c.numDoc
+                    WHERE ca.trabajador_id = :trabajador_id");
+
+                $stmt->bindValue(':trabajador_id', $trabajadorId, PDO::PARAM_INT);
+                $stmt->execute();
+                $comentarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                if ($comentarios) {
+                    return ['success' => true, 'data' => $comentarios];
+                } else {
+                    return ['success' => false, 'message' => 'El trabajador no tiene Calificaciones.'];
+                }
+
+            } else {
+                // No se proporciona trabajadorId, devolver mensaje de error
+                return ['success' => false, 'message' => 'No se ha proporcionado el ID del trabajador.'];
             }
         }
 

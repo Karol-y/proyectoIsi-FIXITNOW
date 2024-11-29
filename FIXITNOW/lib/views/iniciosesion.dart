@@ -39,21 +39,25 @@ class LoginPage extends StatelessWidget {
 
     if(response.statusCode == 200) {
       //autenticacion exitosa
-      final data = json.decode(response.body);
-      if (data['tipo'] == 'cliente') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ClientHomePage(),
-          ),
-        );
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const WorkerHomePage(),
-          ),
-        );
+      final data = jsonDecode(response.body);
+      if(data['success']) {
+        final tipo = data['tipo'];
+        final numDoc = data['numDoc']; //num de identidad del cliente, si este inicia la sesion
+      
+        if (tipo == 'cliente') {
+          print('Valor de numDoc antes de enviar a ClientHomePage: $numDoc');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ClientHomePage(numDoc: numDoc)),
+            );
+        } else if (tipo == 'trabajador'){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const WorkerHomePage()),
+            );
+        }
       }
     } else if(response.statusCode == 401) {
       //credenciales incorrectas

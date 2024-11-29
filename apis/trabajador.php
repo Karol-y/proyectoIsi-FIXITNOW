@@ -8,6 +8,8 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 // Permitir encabezados específicos
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+//esta api no se está consumiendo aún, pero será para obtener la información de trabajadores, para el inicio de la sesion
+
     require 'db2.php'; // Asegúrate de que este archivo contiene la conexión a la base de datos.
 
     // Función para obtener datos del trabajador

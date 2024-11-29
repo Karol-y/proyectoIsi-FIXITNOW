@@ -189,19 +189,42 @@ $pass = '123456'; // Tu contraseña de base de datos
             }
         }
 
-        /* Función para verificar usuario y contraseña
-        function verificarUsuario($pdo, $usuario, $contrasena) {
-            $stmt = $pdo->prepare("SELECT contrasena, tipo FROM usuarios WHERE usuario = :usuario");
-            $stmt->bindValue(':usuario', $usuario);
-            $stmt->execute();
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        //funcion insertar comentario y calificacion
+        function insertarComentario($pdo, $data) {
+            //Datos a insertar 
+            $trabajador_id = isset($_POST['trabajador_id']) ? $_POST['trabajador_id'] : '';
+            $cliente_id = isset($_POST['cliente_id']) ? $_POST['cliente_id'] : '';
+            $comentario = isset($_POST['comentario']) ? $_POST['comentario'] : '';
+            $puntuacion = isset($_POST['puntuacion']) ? $_POST['puntuacion'] : '';
 
-            if ($user && password_verify($contrasena, $user['contrasena'])) {
-                return ['success' => true, 'tipo' => $user['tipo']];
+            // Agregar logs para ver las variables 
+            error_log("trabajador_id: " . $trabajador_id);
+            error_log("cliente_id: " . $cliente_id);
+            error_log("comentario: " . $comentario);
+            error_log("puntuacion: " . $puntuacion);
+            
+            if(!empty($trabajador_id) && !empty($cliente_id) && !empty($puntuacion) && !empty($comentario)) {
+                //prepara la consulta
+                $sql = "INSERT INTO calificacion (trabajador_id, cliente_id, comentario, puntuacion)
+                        VALUES (:trabajador_id, :cliente_id, :comentario, :puntuacion)";
+                
+                $stmt = $pdo->prepare($sql);
+
+                // Asignar valores a los parámetros
+                $stmt->bindParam(':trabajador_id', $trabajador_id);
+                $stmt->bindParam(':cliente_id', $cliente_id);
+                $stmt->bindParam(':comentario', $comentario);
+                $stmt->bindParam(':puntuacion', $puntuacion);
+
+                //ejecutar la consulta
+                $stmt->execute();
+                
+                echo json_encode(['message' => "Comentario insertado exitosamente."]);
             } else {
-                return ['success' => false];
+                http_response_code(400);
+                echo json_encode(['message' => "Error: Hay variables vacías o incorrectas."]);
             }
-        }*/
+        }
 
     } catch(PDOException $e) {
         http_response_code(500);

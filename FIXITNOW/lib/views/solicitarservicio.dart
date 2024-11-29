@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Para formatear fechas y horas
+import 'package:FIXITNOW/views/perfiltrabajadorclient.dart';
 
 class WorkerDetailsPage extends StatefulWidget {
   final String workerImage;
@@ -8,6 +9,8 @@ class WorkerDetailsPage extends StatefulWidget {
   final String description;
   final String phoneNumber;
   final String email;
+  final String trabajadorId;
+  final String clienteId;
 
   const WorkerDetailsPage({
     super.key,
@@ -17,6 +20,8 @@ class WorkerDetailsPage extends StatefulWidget {
     required this.description,
     required this.phoneNumber,
     required this.email,
+    required this.trabajadorId,
+    required this.clienteId,
   });
 
   @override
@@ -55,6 +60,21 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
     }
   }
 
+  //Navegar a la vista de DriverProfilePage
+  void _goToDriverProfilePage(BuildContext context, String image, String name, String clienteId, String trabajadorId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DriverProfilePage(
+          workerImage: image,
+          workerName: name,
+          trabajadorId: trabajadorId,
+          clienteId: clienteId,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,39 +87,42 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey,
-                  backgroundImage: widget.workerImage.isNotEmpty                
-                    ? NetworkImage(widget.workerImage) // URL de la imagen
-                    : null, // Fondo gris si no hay imagen
-                  child: widget.workerImage.isEmpty
-                    ? const Icon(Icons.person, color: Colors.white)
-                    : null,
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.workerName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+            GestureDetector(
+              onTap: () => _goToDriverProfilePage(context, widget.workerImage, widget.workerName, widget.clienteId, widget.trabajadorId),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.grey,
+                    backgroundImage: widget.workerImage.isNotEmpty                
+                      ? NetworkImage(widget.workerImage) // URL de la imagen
+                      : null, // Fondo gris si no hay imagen
+                    child: widget.workerImage.isEmpty
+                      ? const Icon(Icons.person, color: Colors.white)
+                      : null,
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.workerName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      widget.serviceType,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.blue,
+                      Text(
+                        widget.serviceType,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
 
