@@ -87,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }*/
 
 import 'package:FIXITNOW/views/clienteinicio.dart';
+import 'package:FIXITNOW/views/clienteperfil.dart';
 import 'package:FIXITNOW/views/mensaje.dart';
 import 'package:FIXITNOW/views/trabajadorinicio.dart';
 import 'package:FIXITNOW/views/trabajadorperfil.dart';
@@ -124,7 +125,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _pageIndex = 1; // Mostrar la pantalla Inicio al iniciar
+  int _pageIndex = 0; // Mostrar la pantalla Inicio al iniciar
   late final List<Widget> _pages;
   late final String _tipo;
   late final String _numDoc;
@@ -134,24 +135,19 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     // Almacenar los valores recibidos en variables privadas
-    _tipo = widget.tipo;
+    _tipo = 'cliente';
     _numDoc = widget.numDoc;
 
     // Configurar las páginas basadas en el tipo de usuario
     _pages = _tipo == 'cliente'
         ? [
-            const Center(
-              child: Text(
-                "Perfil",
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
             ClientHomePage(numDoc: _numDoc), // Pasar numDoc a ClientHomePage
+            const ClientProfilePage(clientImage: '', clientName: '', phoneNumber: '', email: '',),
             ChatScreen(),
           ]
         : [
-            const WorkerProfile(),
             WorkerHomePage(numDoc: _numDoc), // Pasar numDoc a WorkerHomePage
+            const WorkerProfile(),
             ChatScreen(),
           ];
   }
@@ -166,8 +162,8 @@ class _HomeScreenState extends State<HomeScreen> {
         buttonBackgroundColor: const Color.fromARGB(255, 152, 210, 249),
         height: 57,
         items: const <Widget>[
-          Icon(Icons.person, size: 25, color: Colors.white),
           Icon(Icons.home, size: 25, color: Colors.white),
+          Icon(Icons.person, size: 25, color: Colors.white),
           Icon(Icons.message_rounded, size: 25, color: Colors.white),
         ],
         onTap: (index) {
@@ -182,4 +178,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-*/
