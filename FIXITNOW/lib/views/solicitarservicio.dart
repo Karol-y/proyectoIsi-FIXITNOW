@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Para formatear fechas y horas
 import 'package:FIXITNOW/views/perfiltrabajadorclient.dart';
+//import 'package:http/http.dart' as http; // para la biblioteca HTTP
+//import 'dart:convert'; // Para codificar los datos en formato JSON
+import 'package:FIXITNOW/controllers/controlador_api.dart';
 
 class WorkerDetailsPage extends StatefulWidget {
   final String workerImage;
@@ -46,6 +49,8 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
       });
     }
   }
+
+  final ControladorAPI _controladorAPI = ControladorAPI();
 
   // Método para seleccionar la hora
   Future<void> _selectTime(BuildContext context) async {
@@ -268,19 +273,25 @@ class _WorkerDetailsPageState extends State<WorkerDetailsPage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Por favor selecciona una fecha y una hora.')),
                     );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Servicio solicitado para: ${DateFormat('dd/MM/yyyy').format(_selectedDate!)} a las ${_selectedTime!.format(context)}',
-                        ),
-                      ),
-                    );
-                    Future.delayed(const Duration(seconds: 2), () {
-                      Navigator.pop(context); // Regresa a la vista anterior (ClientHomePage)
-                    });
+                    return; // Salir si faltan valores
                   }
-                },
+
+                  // Convertir fecha y hora a String explícitamente
+                  String fechaString = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                  String horaString = _selectedTime!.format(context); 
+                  
+                  //llamar al controlador para enviar datos
+                  _controladorAPI.subirServicios(
+                    iDtrabajador: widget.trabajadorId,
+                    iDcliente: widget.clienteId,
+                    fecha: fechaString, 
+                    hora: horaString,
+                    estado: 'pendiente',
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Servicio enviado con éxito")),
+                    );
+                  },
                 child: const Text('Solicitar Servicio'),
               ),
             ),

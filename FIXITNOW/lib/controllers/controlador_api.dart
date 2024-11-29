@@ -115,40 +115,81 @@ class ControladorAPI {
 
   //Método para crear un servicio
   Future<void> enviarCalificacionOpinion({
-    required String trabajadorId,
-    required String clienteId,
-    required int rating,
-    required String opinion,
-    }) async {
-      //url de la api para enviar la calificacion
-      const String apiUrl = 'http://192.168.0.24/apis/api.php';
+  required String trabajadorId,
+  required String clienteId,
+  required int rating,
+  required String opinion,
+  }) async {
+    //url de la api para enviar la calificacion
+    const String apiUrl = 'http://192.168.0.24/apis/api.php';
 
-      //Datos que se enviarán a la solicitud
-      final Map<String, dynamic> calificacionData = {
-        'trabajador_id': trabajadorId.toString(),
-        'cliente_id': clienteId,
-        'puntuacion': rating.toString(),
-        'comentario': opinion,
-      };
+    //Datos que se enviarán a la solicitud
+    final Map<String, dynamic> calificacionData = {
+      'trabajador_id': trabajadorId.toString(),
+      'cliente_id': clienteId,
+      'puntuacion': rating.toString(),
+      'comentario': opinion,
+    };
 
-      try {
-        //realizar la solicitud post
-        final response = await http.post(
-          Uri.parse('$apiUrl/calificaciones'),
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: jsonEncode(calificacionData),
-        );
+    try {
+      //realizar la solicitud post
+      final response = await http.post(
+        Uri.parse('$apiUrl/calificaciones'),
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: jsonEncode(calificacionData),
+      );
 
-        //verificar la respuesta del servidor
-        if(response.statusCode == 201) {
-          print('Calificación enviada con éxito');
-        } else {
-          print('Error al enviar la calificación: ${response.body}');
-        }
-      }catch(e) {
-        print('Error en al solicitud: $e');
+      //verificar la respuesta del servidor
+      if(response.statusCode == 201) {
+        print('Calificación enviada con éxito');
+      } else {
+        print('Error al enviar la calificación: ${response.body}');
       }
+    }catch(e) {
+      print('Error en la solicitud: $e');
+    }
+  }
+
+  //metodo para subir los servicios solicitados
+  Future<void> subirServicios({
+    required String iDtrabajador,
+    required String iDcliente,
+    required String fecha,
+    required String hora,
+    required String estado,
+  }) async {
+    //url de la api para enviar la calificacion
+    const String apiUrl = 'http://192.168.0.24/apis/api.php';
+
+    //Datos que se enviarán a la solicitud
+    final Map<String, dynamic> servicioData = {
+      'id_trabajador': iDtrabajador,
+      'id_cliente': iDcliente,
+      'fecha': fecha,
+      'hora': hora,
+      'estado': estado,
+    };
+
+    try {
+      //realizar la solicitud post
+      final response = await http.post(
+        Uri.parse('$apiUrl/servicios'),
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: jsonEncode(servicioData),
+      );
+
+      //verificar la respuesta del servidor
+      if(response.statusCode == 201) {
+        print('Servicio enviado con éxito');
+      } else {
+        print('Error al enviar el Servicio: ${response.body}');
+      }
+    }catch(e) {
+      print('Error en la solicitud: $e');
+    }
   }
 }

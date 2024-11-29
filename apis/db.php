@@ -226,6 +226,45 @@ $pass = '123456'; // Tu contraseña de base de datos
             }
         }
 
+        function insertarServicio($pdo, $data) {
+            //Datos a insertar 
+            $id_trabajador = isset($_POST['id_trabajador']) ? $_POST['id_trabajador'] : '';
+            $id_cliente = isset($_POST['id_cliente']) ? $_POST['id_cliente'] : '';
+            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : '';
+            $hora = isset($_POST['hora']) ? $_POST['hora'] : '';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+
+            // Agregar logs para ver las variables 
+            error_log("id_trabajador: " . $id_trabajador);
+            error_log("id_cliente: " . $id_cliente);
+            error_log("fecha: " . $fecha);
+            error_log("hora: " . $hora);
+            error_log("estado: " . $estado);
+            
+            if(!empty($id_trabajador) && !empty($id_cliente) && !empty($fecha) && !empty($hora) && !empty($estado)) {
+                //prepara la consulta
+                $sql = "INSERT INTO servicios (id_trabajador, id_cliente, fecha, hora, estado)
+                        VALUES (:id_trabajador, :id_cliente, :fecha, :hora, :estado)";
+                
+                $stmt = $pdo->prepare($sql);
+
+                // Asignar valores a los parámetros
+                $stmt->bindParam(':id_trabajador', $id_trabajador);
+                $stmt->bindParam(':id_cliente', $id_cliente);
+                $stmt->bindParam(':fecha', $fecha);
+                $stmt->bindParam(':hora', $hora);
+                $stmt->bindParam(':estado', $estado);
+
+                //ejecutar la consulta
+                $stmt->execute();
+                
+                echo json_encode(['message' => "Servicio agregado exitosamente."]);
+            } else {
+                http_response_code(400);
+                echo json_encode(['message' => "Error: Hay variables vacías o incorrectas."]);
+            }
+        }
+
     } catch(PDOException $e) {
         http_response_code(500);
         echo json_encode(['message' => "Error al insertar registro: " . $e->getMessage()]);

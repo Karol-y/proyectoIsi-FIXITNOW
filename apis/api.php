@@ -397,65 +397,49 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
     function createServicio() {
         global $pdo;
-        $data = json_decode(file_get_contents("php://input"), true);
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            //obtener datos del cuerpo de la solicitud
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id_trabajador = isset($data['id_trabajador']) ? intval($data['id_trabajador']) : null;
+            $id_cliente = isset($data['id_cliente']) ? intval($data['id_cliente']) : null;
+            $fecha = isset($data['fecha']) ? $data['fecha'] : '';
+            $hora = isset($data['hora']) ? $data['hora'] : '';
+            $estado = isset($data['estado']) ? $data['estado'] : '';
 
-        // Validación de parámetros
-        if (!isset($data['codigoS'], 
-                    $data['Número Identificación TRABAJADOR'], 
-                    $data['Número Identificación CLIENTE'], 
-                    $data['Descripción'], 
-                    $data['Tipo de trabajo'])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Faltan parámetros requeridos']);
-            return;
-        }
+            // Validación de parámetros
+            if (is_null($id_trabajador) || is_null($id_cliente) || empty($fecha) || empty($hora) || empty($estado)) {
+                error_log('Parámetros faltantes: ' . print_r($data, true));
+                http_response_code(400);
+                echo json_encode(['message' => 'Faltan parámetros requeridos']);
+                return;
+            }
 
-        // Prepara la consulta SQL para insertar
-        try {
-            $stmt = $pdo->prepare("INSERT INTO servicios (codigoS, `Número Identificación TRABAJADOR`, `Número Identificación CLIENTE`, Descripción, `Tipo de trabajo`) 
-                                    VALUES (:codigoS, :numeroIdentificacionTrabajador, :numeroIdentificacionCliente, :descripcion, :tipoTrabajo)");
+            error_log('Datos a insertar: ' . print_r($_POST, true));
 
-            // Asigna los valores a los parámetros usando bindValue
-            $stmt->bindValue(':codigoS', htmlspecialchars($data['codigoS']));
-            $stmt->bindValue(':numeroIdentificacionTrabajador', htmlspecialchars($data['Número Identificación TRABAJADOR']));
-            $stmt->bindValue(':numeroIdentificacionCliente', htmlspecialchars($data['Número Identificación CLIENTE']));
-            $stmt->bindValue(':descripcion', htmlspecialchars($data['Descripción']));
-            $stmt->bindValue(':tipoTrabajo', htmlspecialchars($data['Tipo de trabajo']));
+            // Prepara la consulta SQL para insertar
+            try {
+                $stmt = $pdo->prepare("INSERT INTO servicios (id_trabajador, id_cliente, fecha, hora, estado) 
+                                        VALUES (:id_trabajador, :id_cliente, :fecha, :hora, :estado)");
 
-            if ($stmt->execute()) {
-                http_response_code(201);
-                echo json_encode(['message' => 'Servicio creado']);
-            } else {
+                // Asigna los valores a los parámetros usando bindValue
+                $stmt->bindValue(':id_trabajador', $id_trabajador, PDO::PARAM_INT);
+                $stmt->bindValue(':id_cliente', $id_cliente, PDO::PARAM_INT);
+                $stmt->bindValue(':fecha', htmlspecialchars($fecha));
+                $stmt->bindValue(':hora', htmlspecialchars($hora));
+                $stmt->bindValue(':estado', htmlspecialchars($estado));
+
+                if ($stmt->execute()) {
+                    http_response_code(201);
+                    echo json_encode(['message' => 'Servicio agregado']);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['message' => 'Error al agregar servicio']);
+                    error_log(print_r($stmt->errorInfo(), true)); // Log para depuración
+                }
+            } catch (PDOException $e) {
                 http_response_code(500);
-                echo json_encode(['message' => 'Error al crear servicio']);
-                error_log(print_r($stmt->errorInfo(), true)); // Log para depuración
+                echo json_encode(['message' => 'Error: ' . $e->getMessage()]);
             }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['message' => 'Error: ' . implode(":",$e->errorInfo)]);
-        }
-    }
-
-    //funcion para comparar el loggin y el password ingresados en vista iniciosesion
-    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['usuario'], $_POST['contrasena'])) {
-        $usuario = $_POST['usuario'];
-        $contrasena = $_POST['contrasena'];
-
-        try{
-            //consulta para verificar si el usuario existe y obtener su tipo
-            $stmt = $pdo->prepare("SELECT tipo, contrasena FROM usuarios WHERE usuario = :usuario");
-            $stmt->bindParam(':usuario', $usuario);
-            $stmt->execute();
-
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if($result && password_verify($contrasena, $result['contrasena'])) {
-                echo json_encode(['status' => 'success', 'tipo' => $result['tipo']]);
-            } else {
-                echo json_encode(['status' => 'fail', 'message' => 'Usuario o Contraseña incorrectos']);
-            }
-        }catch(PDOException $e) {
-            echo json_encode(['status' => 'fail', 'message' => 'Error en la base de datos: ' . $e->getMessage()]);
         }
     }
 
