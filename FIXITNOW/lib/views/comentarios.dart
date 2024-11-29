@@ -1,4 +1,3 @@
-//import 'package:FIXITNOW/views/perfiltrabajadorclient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; 
 import 'dart:convert';
@@ -35,7 +34,7 @@ class ReviewsPage extends StatelessWidget {
         ),
       );
     }
-    
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -167,4 +166,6 @@ class Review {
     );
   }
 }
+
+
 

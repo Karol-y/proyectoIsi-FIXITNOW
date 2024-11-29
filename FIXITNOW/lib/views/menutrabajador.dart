@@ -1,5 +1,6 @@
+import 'package:FIXITNOW/views/trabajadorperfil.dart';
 import 'package:flutter/material.dart';
-import 'package:FIXITNOW/main.dart';
+import 'package:FIXITNOW/main.dart'; // Importa la vista WorkerProfile
 
 void main() {
   runApp(const MenuScreen());
@@ -25,29 +26,48 @@ class MenuScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: Center( // Centra el contenido
+        body: Center(
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño mínimo necesario para los botones
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Botón "Perfil"
-              MenuButton(text: 'PERFIL'),
-              const SizedBox(height: 10), // Espacio entre botones
-              
+              MenuButton(
+                text: 'PERFIL',
+                onPressed: () {
+                  // Navega a la vista WorkerProfile
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const WorkerProfile()),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+
               // Botón "Clientes Aceptados"
-              MenuButton(text: 'CLIENTES ACEPTADOS'),
-              const SizedBox(height: 10), // Espacio entre botones
-              
+              MenuButton(
+                text: 'CLIENTES ACEPTADOS',
+                onPressed: () {
+                  // Implementa la acción correspondiente
+                },
+              ),
+              const SizedBox(height: 10),
+
               // Botón "Calificaciones Obtenidas"
-              MenuButton(text: 'CALIFICACIONES OBTENIDAS'),
-              const SizedBox(height: 300), // Espacio adicional antes del botón "Salir"
-              
-              // Botón "Salir"
+              MenuButton(
+                text: 'CALIFICACIONES OBTENIDAS',
+                onPressed: () {
+                  // Implementa la acción correspondiente
+                },
+              ),
+              const SizedBox(height: 300),
+
               // Botón "Salir"
               SizedBox(
-                width: 400, // Tamaño del botón
+                width: 400,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: const Color.fromARGB(255, 60, 59, 59), backgroundColor: const Color.fromARGB(255, 167, 217, 242),
+                    foregroundColor: const Color.fromARGB(255, 60, 59, 59),
+                    backgroundColor: const Color.fromARGB(255, 167, 217, 242),
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -57,9 +77,9 @@ class MenuScreen extends StatelessWidget {
                   onPressed: () {
                     // Acción al presionar el botón de salir
                     Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ingresar()), // Redirige a la página de inicio de sesión
-                    (Route<dynamic> route) => false,  // Elimina todas las rutas anteriores
+                      context,
+                      MaterialPageRoute(builder: (context) => const ingresar()), // Redirige a la página de inicio de sesión
+                      (Route<dynamic> route) => false, // Elimina todas las rutas anteriores
                     );
                   },
                   child: const Text('SALIR', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -75,9 +95,10 @@ class MenuScreen extends StatelessWidget {
 
 class MenuButton extends StatelessWidget {
   final String text;
+  final VoidCallback onPressed; // Callback para definir la acción del botón
 
-  // ignore: prefer_const_constructors_in_immutables
-  MenuButton({super.key, required this.text});
+  // Constructor que acepta texto y una función de callback
+  const MenuButton({super.key, required this.text, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +106,7 @@ class MenuButton extends StatelessWidget {
       width: 220, // Ancho del botón centrado
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          foregroundColor: const Color.fromARGB(217, 68, 32, 112), 
+          foregroundColor: const Color.fromARGB(217, 68, 32, 112),
           backgroundColor: const Color.fromARGB(255, 125, 208, 246),
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           shape: RoundedRectangleBorder(
@@ -93,9 +114,7 @@ class MenuButton extends StatelessWidget {
             side: const BorderSide(color: Colors.black),
           ),
         ),
-        onPressed: () {
-          // Acción al presionar el botón
-        },
+        onPressed: onPressed, // Ejecuta la acción del botón
         child: Text(
           text,
           style: const TextStyle(fontWeight: FontWeight.bold),
