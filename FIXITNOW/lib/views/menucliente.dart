@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:FIXITNOW/main.dart';
-import 'package:FIXITNOW/views/menutrabajador.dart';
+//import 'package:FIXITNOW/views/menutrabajador.dart';
 
 void main() {
   runApp(const MenuScreenClient());
@@ -31,12 +31,12 @@ class MenuScreenClient extends StatelessWidget {
             mainAxisSize: MainAxisSize.min, // Ajusta el tamaño mínimo necesario para los botones
             children: [
               // Botón "Perfil"
-              MenuButton(text: 'PERFIL'),
-              const SizedBox(height: 10), // Espacio entre botones
+             // MenuButton(text: 'PERFIL'),
+              //const SizedBox(height: 10), // Espacio entre botones
               
               // Botón "Calificaciones Obtenidas"
-              MenuButton(text: 'SERVICIOS OBTENIDOS'),
-              const SizedBox(height: 300), // Espacio adicional antes del botón "Salir"
+              //MenuButton(text: 'SERVICIOS OBTENIDOS'),
+              //const SizedBox(height: 300), // Espacio adicional antes del botón "Salir"
               
               // Botón "Salir"
               // Botón "Salir"
