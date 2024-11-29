@@ -1,4 +1,4 @@
-import 'package:FIXITNOW/views/trabajadorperfil.dart';
+/*import 'package:FIXITNOW/views/trabajadorperfil.dart';
 import 'package:flutter/material.dart';
 import 'package:FIXITNOW/main.dart'; // Importa la vista WorkerProfile
 
@@ -123,3 +123,4 @@ class MenuButton extends StatelessWidget {
     );
   }
 }
+*/

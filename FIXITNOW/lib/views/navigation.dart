@@ -1,9 +1,9 @@
-import 'package:FIXITNOW/views/clienteinicio.dart';
+/*import 'package:FIXITNOW/views/clienteinicio.dart';
 import 'package:FIXITNOW/views/mensaje.dart';
 import 'package:FIXITNOW/views/trabajadorinicio.dart';
 import 'package:FIXITNOW/views/trabajadorperfil.dart';
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+//import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pages = userType == 'cliente'
         ? [
             const Center(child: Text("Profile", style: TextStyle(fontSize: 24))),
-            const ClientHomePage(),
+            //const ClientHomePage(),
             ChatScreen(),
           ]
         : [
@@ -85,3 +85,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+*/

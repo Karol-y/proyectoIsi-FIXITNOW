@@ -241,7 +241,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
           icon: const Icon(Icons.menu),
           onPressed: () {
             Navigator.push(
-              context,
+              context, 
               MaterialPageRoute(builder: (context) => const MenuScreen()),
             );
           },
